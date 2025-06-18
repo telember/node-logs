@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Log Viewer</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            background: #1e1e1e; 
+            color: #d4d4d4; 
+            margin: 0; 
+            padding: 0; 
+        }
+        #log {
+            white-space: pre-wrap;
+            background: #252526;
+            padding: 20px;
+            margin: 0;
+            height: 95vh;
+            overflow-y: scroll;
+            border: none;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        h1 { 
+            background: #333333; 
+            margin: 0; 
+            padding: 15px 20px;
+            font-size: 18px;
+            border-bottom: 1px solid #444;
+        }
+        .timestamp {
+            color: #569cd6;
+        }
+        .separator {
+            color: #4d4d4d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Real-Time Log Viewer</h1>
+    <div id="log">Loading...</div>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const logDiv = document.getElementById('log');
+        const socket = io();
+        
+        function formatLog(logText) {
+            return logText
+                .replace(/\[(.*?)\]/g, '<span class="timestamp">[$1]</span>')
+                .replace(/-{80}/g, '<span class="separator">$&</span>');
+        }
+
+        socket.on('logUpdate', (data) => {
+            logDiv.innerHTML = formatLog(data);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        });
+    </script>
+</body>
+</html> 
