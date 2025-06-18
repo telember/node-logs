@@ -1,4 +1,8 @@
-# Log Viewer
+# Node Log Server
+
+[![Docker Pulls](https://img.shields.io/docker/pulls/telember/node-logs)](https://hub.docker.com/r/telember/node-logs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Tests](https://github.com/telember/node-logs/actions/workflows/test.yml/badge.svg)](https://github.com/telember/node-logs/actions/workflows/test.yml)
 
 A real-time log viewing application with a modern web interface. Built with Node.js, Express, and Socket.IO.
 
