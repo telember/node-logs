@@ -1,88 +1,104 @@
-# Log Server API
+# Node Log Server
 
-A simple API server for receiving and storing logs with real-time web viewer.
+[![Docker Pulls](https://img.shields.io/docker/pulls/telember/node-logs)](https://hub.docker.com/r/telember/node-logs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Setup
+A lightweight, real-time log server with web interface. Perfect for collecting and monitoring logs from multiple sources.
 
-### Option 1: Local Development
+## Features
 
-1. Install dependencies:
+- 📝 Simple REST API for sending logs
+- 🌐 Real-time web interface for log monitoring
+- 🐳 Docker support for easy deployment
+- 🔄 Auto-restart capability
+- 📊 Clean and readable log format
+- 🚀 WebSocket support for live updates
+
+## Quick Start
+
+### Using Docker
+
 ```bash
-npm install
-```
+# Build the image
+docker build -t node-logs .
 
-2. Start the server:
-```bash
-npm start
-```
-
-### Option 2: Docker Deployment
-
-#### Development Machine (where you build the image)
-
-1. Build and push the image:
-```bash
-make deploy-prod
-```
-
-This will:
-- Build the Docker image
-- Tag it as 'latest'
-- Push to Docker Hub
-- Run the container locally
-
-#### Production Machine (Raspberry Pi)
-
-1. Pull and run the latest version:
-```bash
-# Stop existing container (if any)
-docker stop node-logs
-docker rm node-logs
-
-# Pull and run latest version
-docker pull telember/node-logs:latest
+# Run the container
 docker run -d \
   --name node-logs \
   --restart unless-stopped \
   -p 3002:3002 \
-  -v ~/works/docker/logs:/app/logs \
-  telember/node-logs:latest
+  -v $(pwd)/logs:/app/logs \
+  node-logs:latest
 ```
 
-## API Usage
+### Local Development
 
-### Endpoint: POST /api/logs
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/node-logs.git
+cd node-logs
 
-Send log data to the server. The logs will be appended to a file in the `logs` directory.
+# Install dependencies
+npm install
 
-#### Request Body:
+# Start the server
+npm start
+```
+
+## API Documentation
+
+### Send Logs
+
+**Endpoint:** `POST /api/logs`
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**Request Body:**
 ```json
 {
     "logData": "Your log message here",
-    "timestamp": "2024-03-21T10:30:00Z"  // Optional, will use server time if not provided
+    "timestamp": "2024-03-21T10:30:00Z"  // Optional
 }
 ```
 
-#### Example using curl:
+**Example using curl:**
 ```bash
 curl -X POST http://localhost:3002/api/logs \
   -H "Content-Type: application/json" \
   -d '{"logData": "Test log message"}'
 ```
 
-#### Example using Android (Kotlin):
-```kotlin
-val client = OkHttpClient()
-val json = JSONObject().apply {
-    put("logData", "Test log message")
+**Example using Node.js:**
+```javascript
+const axios = require('axios');
+
+async function sendLog(message) {
+    try {
+        await axios.post('http://localhost:3002/api/logs', {
+            logData: message
+        });
+    } catch (error) {
+        console.error('Error sending log:', error);
+    }
 }
+```
 
-val request = Request.Builder()
-    .url("http://your-server:3002/api/logs")
-    .post(json.toString().toRequestBody("application/json".toMediaType()))
-    .build()
+**Example using Python:**
+```python
+import requests
 
-client.newCall(request).execute()
+def send_log(message):
+    try:
+        response = requests.post(
+            'http://localhost:3002/api/logs',
+            json={'logData': message}
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f'Error sending log: {e}')
 ```
 
 ## Web Interface
@@ -92,38 +108,51 @@ Access the real-time log viewer at:
 http://localhost:3002
 ```
 
-The web interface shows logs with:
-- Timestamps in blue
-- Separator lines between entries
-- Auto-scrolling to latest logs
-- Dark theme for better readability
+Features:
+- Real-time log updates
+- Timestamp highlighting
+- Auto-scrolling
+- Dark theme
+- Separator lines for better readability
 
-## Log File
+## Docker Commands
 
-Logs are stored in `logs/app.log` in the following format:
+### Basic Operations
+```bash
+# View logs
+docker logs -f node-logs
+
+# Stop container
+docker stop node-logs
+
+# Remove container
+docker rm node-logs
+
+# Update to latest version
+docker pull node-logs:latest
+```
+
+### Development
+```bash
+# Build image
+docker build -t node-logs .
+
+# Run container
+docker run -d --name node-logs -p 3002:3002 -v $(pwd)/logs:/app/logs node-logs:latest
+```
+
+## Log Format
+
+Logs are stored in `logs/app.log` with the following format:
 ```
 [timestamp] log message
 --------------------------------------------------------------------------------
 ```
 
-## Docker Commands
+## Contributing
 
-### Development Machine
-- `make build` - Build the Docker image
-- `make push` - Push the image to Docker Hub
-- `make deploy-prod` - Build, push, and run the container
-- `make logs` - View container logs
-- `make stop` - Stop the container
-- `make clean` - Clean up containers and images
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Production Machine (Raspberry Pi)
-- View logs: `docker logs -f node-logs`
-- Stop container: `docker stop node-logs`
-- Remove container: `docker rm node-logs`
-- Update to latest: 
-  ```bash
-  docker stop node-logs
-  docker rm node-logs
-  docker pull telember/node-logs:latest
-  docker run -d --name node-logs --restart unless-stopped -p 3002:3002 -v ~/works/docker/logs:/app/logs telember/node-logs:latest
-  ``` 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 

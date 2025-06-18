@@ -1,15 +1,31 @@
 {
-  "name": "log-server",
+  "name": "node-logs",
   "version": "1.0.0",
-  "description": "Simple API server for receiving and storing logs",
+  "description": "A simple log server with web interface",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "jest"
   },
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "socket.io": "^4.8.1"
+    "express-basic-auth": "^1.2.0",
+    "ws": "^8.16.0",
+    "cors": "^2.8.5",
+    "socket.io": "^4.7.4"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "resolutions": {
+    "glob": "^10.3.10",
+    "**/glob": "^10.3.10"
+  },
+  "overrides": {
+    "glob": "^10.3.10"
   }
 }
