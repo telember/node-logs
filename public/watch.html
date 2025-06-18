@@ -15,6 +15,8 @@
             --log-bg: #1a1b1e;
             --timestamp-color: #60a5fa;
             --separator-color: #3f3f46;
+            --highlight-color: #fbbf24;
+            --search-bg: #374151;
         }
 
         * {
@@ -59,6 +61,36 @@
             display: flex;
             gap: 1rem;
             align-items: center;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--search-bg);
+            padding: 0.5rem;
+            border-radius: 4px;
+            min-width: 300px;
+        }
+
+        .search-input {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 100%;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-count {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            white-space: nowrap;
         }
 
         .status {
@@ -148,6 +180,21 @@
             margin: 0.5rem 0;
         }
 
+        .highlight {
+            background-color: var(--highlight-color);
+            color: #1f2937;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .log-line {
+            padding: 2px 0;
+        }
+
+        .log-line.hidden {
+            display: none;
+        }
+
         /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 8px;
@@ -212,6 +259,13 @@
             Log Viewer
         </div>
         <div class="controls">
+            <div class="search-container">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" class="search-input" placeholder="Search logs..." id="searchInput">
+                <span class="search-count" id="searchCount"></span>
+            </div>
             <div class="status">
                 <div class="status-indicator"></div>
                 <span>Connected</span>
@@ -244,7 +298,10 @@
         const status = document.querySelector('.status');
         const autoScrollIndicator = document.querySelector('.auto-scroll-indicator');
         const loading = document.querySelector('.loading');
+        const searchInput = document.getElementById('searchInput');
+        const searchCount = document.getElementById('searchCount');
         let autoScroll = true;
+        let currentLogs = [];
 
         // Format timestamp
         function formatTimestamp(timestamp) {
@@ -254,6 +311,46 @@
         // Format separator
         function formatSeparator() {
             return `<div class="separator">${'-'.repeat(80)}</div>`;
+        }
+
+        // Highlight search text
+        function highlightText(text, searchTerms) {
+            if (!searchTerms.length) return text;
+            
+            // Create a regex that matches any of the search terms
+            const regex = new RegExp(`(${searchTerms.join('|')})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // Update search count
+        function updateSearchCount(count) {
+            searchCount.textContent = count > 0 ? `${count} matches` : '';
+        }
+
+        // Filter and highlight logs
+        function filterAndHighlightLogs(logs, searchTerm) {
+            const searchTerms = searchTerm.trim().split(/\s+/).filter(term => term.length > 0);
+            
+            if (!searchTerms.length) {
+                return logs.map(log => ({
+                    ...log,
+                    html: log.originalHtml,
+                    visible: true
+                }));
+            }
+
+            const filteredLogs = logs.map(log => {
+                const highlightedHtml = highlightText(log.originalHtml, searchTerms);
+                return {
+                    ...log,
+                    html: highlightedHtml,
+                    visible: true
+                };
+            });
+
+            const matchCount = filteredLogs.filter(log => log.html !== log.originalHtml).length;
+            updateSearchCount(matchCount);
+            return filteredLogs;
         }
 
         // Update log content
@@ -267,16 +364,42 @@
                     if (timestampEnd !== -1) {
                         const timestamp = line.substring(0, timestampEnd + 1);
                         const logData = line.substring(timestampEnd + 1);
-                        return formatTimestamp(timestamp) + logData;
+                        return {
+                            type: 'log',
+                            originalHtml: formatTimestamp(timestamp) + logData,
+                            html: formatTimestamp(timestamp) + logData,
+                            visible: true
+                        };
                     }
                 }
                 if (line.startsWith('-')) {
-                    return formatSeparator();
+                    return {
+                        type: 'separator',
+                        originalHtml: formatSeparator(),
+                        html: formatSeparator(),
+                        visible: true
+                    };
                 }
-                return line;
+                return {
+                    type: 'text',
+                    originalHtml: line,
+                    html: line,
+                    visible: true
+                };
             });
             
-            logContent.innerHTML = formattedLines.join('\n');
+            currentLogs = formattedLines;
+            renderLogs();
+        }
+
+        // Render logs
+        function renderLogs() {
+            const searchTerm = searchInput.value.trim();
+            const filteredLogs = filterAndHighlightLogs(currentLogs, searchTerm);
+            
+            logContent.innerHTML = filteredLogs
+                .map(log => `<div class="log-line ${log.visible ? '' : 'hidden'}">${log.html}</div>`)
+                .join('');
             
             if (autoScroll) {
                 window.scrollTo(0, document.body.scrollHeight);
@@ -301,6 +424,8 @@
         // Clear logs
         clearBtn.addEventListener('click', () => {
             logContent.innerHTML = '';
+            currentLogs = [];
+            updateSearchCount(0);
         });
 
         // Toggle auto-scroll
@@ -312,6 +437,11 @@
             setTimeout(() => {
                 autoScrollIndicator.classList.remove('visible');
             }, 2000);
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', () => {
+            renderLogs();
         });
 
         // Manual scroll detection
