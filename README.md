@@ -2,6 +2,7 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/telember/node-logs)](https://hub.docker.com/r/telember/node-logs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Tests](https://github.com/telember/node-logs/actions/workflows/test.yml/badge.svg)](https://github.com/telember/node-logs/actions/workflows/test.yml)
 
 A lightweight, real-time log server with web interface. Perfect for collecting and monitoring logs from multiple sources.
 
