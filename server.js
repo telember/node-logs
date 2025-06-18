@@ -7,12 +7,11 @@ const http = require('http');
 const socketIo = require('socket.io');
 
 const app = express();
-const port = process.env.PORT || 3002;
+const port = 3002;  // Hardcode to 3002 to avoid port conflicts
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Create logs directory if it doesn't exist
 const logsDir = path.join(__dirname, 'logs');
@@ -56,6 +55,21 @@ app.get('/api/logs', (req, res) => {
     } else {
         res.status(404).send('Log file not found');
     }
+});
+
+// Serve watch interface at /watch
+app.get('/watch', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'watch.html'));
+});
+
+// Serve custom 404 page for root path
+app.get('/', (req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+
+// Serve custom 404 page for all other unknown paths
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
 // Watch the log file for changes and emit updates

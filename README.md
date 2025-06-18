@@ -1,159 +1,90 @@
-# Node Log Server
+# Log Viewer
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/telember/node-logs)](https://hub.docker.com/r/telember/node-logs)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Tests](https://github.com/telember/node-logs/actions/workflows/test.yml/badge.svg)](https://github.com/telember/node-logs/actions/workflows/test.yml)
-
-A lightweight, real-time log server with web interface. Perfect for collecting and monitoring logs from multiple sources.
+A real-time log viewing application with a modern web interface. Built with Node.js, Express, and Socket.IO.
 
 ## Features
 
-- 📝 Simple REST API for sending logs
-- 🌐 Real-time web interface for log monitoring
-- 🐳 Docker support for easy deployment
-- 🔄 Auto-restart capability
-- 📊 Clean and readable log format
-- 🚀 WebSocket support for live updates
+- Real-time log updates using WebSocket
+- Modern, responsive web interface
+- Dark theme with syntax highlighting
+- Auto-scroll functionality
+- Clear logs option
+- Connection status indicator
+- Simple API for log submission
 
-## Quick Start
+## Prerequisites
 
-### Using Docker
+- Node.js (v14 or higher)
+- npm (comes with Node.js)
 
+## Installation
+
+1. Clone the repository:
 ```bash
-# Build the image
-docker build -t node-logs .
-
-# Run the container
-docker run -d \
-  --name node-logs \
-  --restart unless-stopped \
-  -p 3002:3002 \
-  -v $(pwd)/logs:/app/logs \
-  node-logs:latest
+git clone <repository-url>
+cd logs
 ```
 
-### Local Development
-
+2. Install dependencies:
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/node-logs.git
-cd node-logs
-
-# Install dependencies
 npm install
-
-# Start the server
-npm start
 ```
 
-## API Documentation
+## Usage
 
-### Send Logs
-
-**Endpoint:** `POST /api/logs`
-
-**Headers:**
-```
-Content-Type: application/json
+1. Start the server:
+```bash
+node server.js
 ```
 
-**Request Body:**
-```json
-{
-    "logData": "Your log message here",
-    "timestamp": "2024-03-21T10:30:00Z"  // Optional
-}
-```
+The server will start on port 3002.
 
-**Example using curl:**
+2. Access the web interface:
+- Open `http://localhost:3002/watch` in your browser
+- The interface will automatically connect and start displaying logs
+
+3. Send logs to the server:
 ```bash
 curl -X POST http://localhost:3002/api/logs \
   -H "Content-Type: application/json" \
-  -d '{"logData": "Test log message"}'
+  -d '{"logData": "Your log message", "timestamp": "2024-03-21T12:00:00Z"}'
 ```
 
-**Example using Node.js:**
-```javascript
-const axios = require('axios');
+## API Endpoints
 
-async function sendLog(message) {
-    try {
-        await axios.post('http://localhost:3002/api/logs', {
-            logData: message
-        });
-    } catch (error) {
-        console.error('Error sending log:', error);
-    }
-}
-```
+- `GET /watch` - Web interface for viewing logs
+- `POST /api/logs` - Submit new logs
+- `GET /api/logs` - Retrieve all logs
 
-**Example using Python:**
-```python
-import requests
+## Web Interface Features
 
-def send_log(message):
-    try:
-        response = requests.post(
-            'http://localhost:3002/api/logs',
-            json={'logData': message}
-        )
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print(f'Error sending log: {e}')
-```
+- **Real-time Updates**: Logs appear instantly as they are received
+- **Auto-scroll**: Automatically scrolls to new logs (can be toggled)
+- **Clear Logs**: Button to clear the current view
+- **Connection Status**: Visual indicator of WebSocket connection status
+- **Dark Theme**: Easy on the eyes for long viewing sessions
+- **Syntax Highlighting**: Timestamps and separators are highlighted
 
-## Web Interface
+## Docker Support
 
-Access the real-time log viewer at:
-```
-http://localhost:3002
-```
+Build and run with Docker:
 
-Features:
-- Real-time log updates
-- Timestamp highlighting
-- Auto-scrolling
-- Dark theme
-- Separator lines for better readability
-
-## Docker Commands
-
-### Basic Operations
 ```bash
-# View logs
-docker logs -f node-logs
+# Build the image
+docker build -t telember/node-logs .
 
-# Stop container
-docker stop node-logs
-
-# Remove container
-docker rm node-logs
-
-# Update to latest version
-docker pull node-logs:latest
+# Run the container
+docker run -p 3002:3002 telember/node-logs
 ```
 
-### Development
-```bash
-# Build image
-docker build -t node-logs .
+## Development
 
-# Run container
-docker run -d --name node-logs -p 3002:3002 -v $(pwd)/logs:/app/logs node-logs:latest
-```
-
-## Log Format
-
-Logs are stored in `logs/app.log` with the following format:
-```
-[timestamp] log message
---------------------------------------------------------------------------------
-```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+The project uses:
+- Express.js for the web server
+- Socket.IO for real-time updates
+- Modern JavaScript features
+- CSS variables for theming
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
+MIT 
