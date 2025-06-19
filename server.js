@@ -57,6 +57,18 @@ app.get('/api/logs', (req, res) => {
     }
 });
 
+// Clear log file endpoint
+app.post('/api/logs/clear', (req, res) => {
+    try {
+        fs.writeFileSync(logFile, '');
+        emitLogUpdate();
+        res.status(200).json({ message: 'Log file cleared' });
+    } catch (error) {
+        console.error('Error clearing log file:', error);
+        res.status(500).json({ error: 'Failed to clear log file' });
+    }
+});
+
 // Serve watch interface at /watch
 app.get('/watch', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'watch.html'));
